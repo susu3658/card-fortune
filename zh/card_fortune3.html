@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最终选牌</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .deck-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .side-deck-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .side-deck {
+            width: 100px;
+            height: 150px;
+            background-color: gray;
+            border: 2px solid black;
+            text-align: center;
+            line-height: 150px;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .deck-count {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .message {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .discard-container {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+.discard-card {
+    width: 100px;  /* 기존 side-deck과 동일한 크기 */
+    height: 150px; /* 기존 side-deck과 동일한 크기 */
+    background-color: gray;
+    border: 2px solid black;
+    text-align: center;
+    line-height: 150px;
+    font-size: 16px;
+    color: white;
+    position: absolute;
+    animation: flyAway 0.5s forwards;
+}
+
+@keyframes flyAway {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translateX(-150px) rotate(-20deg); opacity: 0; } /* 왼쪽으로 날아감 */
+}
+
+@keyframes flyAwayRight {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translateX(150px) rotate(20deg); opacity: 0; } /* 오른쪽으로 날아감 */
+}
+
+        .selected-cards {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 120px;
+            height: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        .selected-card {
+            font-size: 16px;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 5px;
+        }
+
+        .selected-first-card {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: black;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>请用左手点击左手卡牌，用右手点击右手卡牌</h1>
+    <p class="message" id="message">请用左手弃掉4张牌，然后抽取1张新牌. <span id="discardCounter">(4/4)</span></p>
+
+    <div class="deck-container">
+        <div class="side-deck-container">
+            <div class="side-deck" id="leftDeck" onclick="discardCard('left')">左手卡牌</div>
+            <p class="deck-count" id="leftCount"></p>
+        </div>
+
+        <div class="side-deck-container">
+            <div class="side-deck" id="rightDeck" onclick="discardCard('right')">右手卡牌</div>
+            <p class="deck-count" id="rightCount"></p>
+        </div>
+    </div>
+
+    <div class="discard-container" id="discardArea"></div>
+    <div class="selected-cards" id="selectedCards"></div>
+    <div class="selected-first-card" id="firstCardDisplay"></div>
+
+<button id="copyButton" onclick="copyResult()" style="width: 200px; height: 50px; font-size: 18px; background-color: gray; color: white; display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 80%;">复制结果</button>
+<p id="copyMessage" style="font-size: 18px; font-weight: bold; margin-top: 10px;"></p>
+
+    <script>
+function disableClick() {
+    document.getElementById("leftDeck").style.pointerEvents = "none";
+    document.getElementById("rightDeck").style.pointerEvents = "none";
+}
+
+function enableClick() {
+    document.getElementById("leftDeck").style.pointerEvents = "auto";
+    document.getElementById("rightDeck").style.pointerEvents = "auto";
+}
+
+        let leftCards = parseInt(localStorage.getItem("leftCards")) || 0;
+        let rightCards = parseInt(localStorage.getItem("rightCards")) || 0;
+        let selectedFirstCard = localStorage.getItem("selectedCard");
+        let finalCards = [];
+        let step = 0;
+        let isLeftTurn = true;
+        let discardCount = 4;
+        let discardSequence = [4, 8, 4, 4, 8, 4];
+        let suits = ["◆", "♠", "♥", "♣"];
+
+        document.getElementById("leftCount").innerText = `卡牌: ${leftCards}张`;
+        document.getElementById("rightCount").innerText = `卡牌: ${rightCards}张`;
+
+        if (selectedFirstCard) {
+            document.getElementById("firstCardDisplay").innerText = `所选卡牌: ${selectedFirstCard}`;
+        }
+let isClickable = true; // 클릭 가능 여부
+
+// 디버깅용 card_fortune3.html 코드 수정 및 실행 테스트
+
+// 디버깅용 card_fortune3.html 코드 수정 및 실행 테스트
+
+function discardCard(hand) {
+    if (step >= 6) return; // 6번째 선택 이후 클릭 금지
+
+    let expectedHand = step < 3 ? "left" : "right"; // 0~2단계: 왼손, 3~5단계: 오른손
+    if (hand !== expectedHand) {
+        console.error(`❌ [ERROR] ${hand} 손에서는 버릴 수 없음!`);
+        return;
+    }
+
+    // ✅ currentDeck을 배열로 변환
+    let currentDeckKey = hand === "left" ? "leftDeck" : "rightDeck";
+    let currentDeck = JSON.parse(localStorage.getItem(currentDeckKey)) || []; // ✅ JSON.parse()로 변환
+
+    if (!Array.isArray(currentDeck) || currentDeck.length === 0) {
+        console.error(`❌ [ERROR] ${hand} 덱이 비어 있음!`);
+        return;
+    }
+
+    let discardedCard = currentDeck.shift(); // ✅ 첫 번째 카드 제거
+    localStorage.setItem(currentDeckKey, JSON.stringify(currentDeck)); // ✅ 변경된 덱을 다시 저장
+
+    document.getElementById(hand === "left" ? "leftCount" : "rightCount").innerText = `卡牌: ${currentDeck.length}张`;
+
+    let deckElement = document.getElementById(hand === "left" ? "leftDeck" : "rightDeck");
+
+    let discardCard = document.createElement("div");
+    discardCard.classList.add("discard-card");
+    discardCard.innerText = discardedCard.text;
+
+    let deckRect = deckElement.getBoundingClientRect();
+    discardCard.style.position = "absolute";
+    discardCard.style.left = `${deckRect.left}px`;
+    discardCard.style.top = `${deckRect.top}px`;
+
+    discardCard.style.animation = hand === "left" ? "flyAway 0.5s forwards" : "flyAwayRight 0.5s forwards";
+    document.body.appendChild(discardCard);
+
+    setTimeout(() => {
+        discardCard.remove();
+    }, 500);
+
+    discardCount--;
+
+    if (discardCount <= 0) {
+        discardCount = 0;
+        disableClick();
+        setTimeout(() => {
+            console.log("[DEBUG] 카드 뽑기 시작!");
+            drawCard(hand);
+        }, 500);
+    }
+
+    updateMessage();
+}
+
+// ✅ 3단계에서 올바른 덱 데이터 불러오기
+function initializeDecks() {
+    let leftDeck = JSON.parse(localStorage.getItem("leftDeck")) || [];
+    let rightDeck = JSON.parse(localStorage.getItem("rightDeck")) || [];
+
+    if (leftDeck.length === 0 || rightDeck.length === 0) {
+        console.error("❌ [ERROR] 덱 데이터 없음! 2단계에서 올바르게 전달되지 않음.");
+        alert("⚠ 2단계에서 카드가 올바르게 저장되지 않았습니다! 다시 시도해 주세요.");
+        return;
+    }
+
+    document.getElementById("leftCount").innerText = `卡牌: ${leftDeck.length}张`;
+    document.getElementById("rightCount").innerText = `카드: ${rightDeck.length}장`;
+
+    localStorage.setItem("leftDeck", JSON.stringify(leftDeck));
+    localStorage.setItem("rightDeck", JSON.stringify(rightDeck));
+
+    console.log("✅ [DEBUG] 3단계 덱 로드 완료! 왼쪽 덱:", leftDeck, "오른쪽 덱:", rightDeck);
+}
+
+// ✅ 페이지 로딩 시 덱 데이터 초기화
+initializeDecks();
+
+function drawCard(hand) {
+    if (step >= 6) return; // 6번째 선택 이후 클릭 금지
+
+    let currentDeckKey = hand === "left" ? "leftDeck" : "rightDeck";
+    let currentDeck = JSON.parse(localStorage.getItem(currentDeckKey)) || [];
+
+    if (!currentDeck || currentDeck.length === 0) {
+        console.error(`❌ [ERROR] ${hand} 덱이 비어 있음!`);
+        return;
+    }
+
+    let chosenCard = currentDeck.shift(); // 올바른 순서대로 카드 뽑기
+    localStorage.setItem(currentDeckKey, JSON.stringify(currentDeck));
+
+    document.getElementById(hand === "left" ? "leftCount" : "rightCount").innerText = `卡牌: ${currentDeck.length}张`;
+
+    let deckElement = document.getElementById(hand === "left" ? "leftDeck" : "rightDeck"); 
+    let originalText = deckElement.innerText;
+    deckElement.innerText = chosenCard.text;
+
+    console.log(`[DEBUG] ${hand}中抽取卡牌: ${chosenCard.text}, 剩余卡牌数: ${currentDeck.length}`);
+
+    disableClick();
+
+    setTimeout(() => {
+        deckElement.innerText = originalText;
+        let selectedCardsArea = document.getElementById("selectedCards");
+        let newCard = document.createElement("div");
+        newCard.classList.add("selected-card");
+        newCard.innerText = chosenCard.text;
+        selectedCardsArea.prepend(newCard);
+
+        step++;
+        discardCount = discardSequence[step] || 0;
+
+        console.log(`[DEBUG] 现在 step: ${step}, 下一步 discardCount: ${discardCount}`);
+
+        if (step >= 6) {
+            localStorage.setItem("finalCards", JSON.stringify(finalCards));
+            document.getElementById("message").innerText = `点击复制按钮即可复制结果`;
+            disableClick(); // 최종 결과가 나오면 더 이상 클릭되지 않도록 함
+            showCopyButton(); // 복사 버튼을 표시
+        } else {
+            updateMessage();
+            enableClick();
+        }
+
+    }, 2000);
+}
+
+// 복사 버튼을 보이게 하는 함수
+function showCopyButton() {
+    document.getElementById("copyButton").style.display = "block"; // 버튼 보이게 설정
+}
+
+function updateMessage() {
+    let totalDiscard = discardSequence[step] || 4; // 현재 단계에서 버려야 할 총 카드 수 설정
+    document.getElementById("message").innerHTML =
+        `${step < 3 ? "用左手" : "用右手"}弃掉 ${discardCount}张牌,然后抽取1张牌. <span id="discardCounter">(${discardCount}/${totalDiscard})</span>`;
+}
+
+        setTimeout(updateMessage, 1000);
+
+function copyResult() {
+    let firstCard = document.getElementById("firstCardDisplay").innerText.trim(); // 처음 카드
+    let selectedCards = Array.from(document.querySelectorAll("#selectedCards .selected-card"))
+                               .map(card => card.innerText.trim()); // 나머지 카드들
+
+    let result = `<${firstCard}> ${selectedCards.reverse().join('/')}`; // 카드 형식: <♣1> ♣8/◆6/♠3/♥9/♣5/♥3
+
+    // 클립보드로 복사
+    navigator.clipboard.writeText(result).then(() => {
+        // 복사 완료 후 버튼 텍스트 및 색상 변경
+        document.getElementById("copyButton").innerText = "√复制完成";
+        document.getElementById("copyButton").style.backgroundColor = "darkgreen"; // 짙은 녹색
+        document.getElementById("copyMessage").innerText = ""; // 복사 완료 메시지 제거
+    }).catch(err => {
+        console.error("复制失败:", err);
+    });
+}
+function showCopyButton() {
+    document.getElementById("copyButton").style.display = "block"; // 버튼 보이게 설정
+}
+
+    </script>
+</body>
+</html>

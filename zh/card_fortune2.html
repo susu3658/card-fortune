@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>您选择的卡牌结果</title>
+    <style>
+        /* 전체 레이아웃 정리 */
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .selected-card {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* 카드 배치 */
+        .deck-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .side-deck-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .side-deck {
+            width: 50px;
+            height: 75px;
+            background-color: gray;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 75px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .deck-count {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* 삼각형과 선 정렬 */
+        .middle-deck {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            height: 100px;
+        }
+
+        /* 삼각형 버튼 정렬 */
+        .button-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            top: 0px;
+        }
+
+        /* 선(│) 정렬 */
+        .line-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 23px;
+            position: absolute;
+            top: 15px;
+        }
+
+        /* 삼각형 버튼 스타일 */
+        .split-button {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 18px solid #FFD700;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 선택한 삼각형 강조 */
+        .split-button.highlight {
+            border-top: 18px solid red;
+        }
+
+        /* 선(│) 스타일 */
+        .line {
+            width: 2px;
+            height: 50px;
+            background-color: black;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 설명 스타일 */
+        .description {
+            font-size: 14px; /* 글씨 크기 작게 */
+            color: #555; /* 연한 회색 */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>请将卡牌分为左（阴）右（阳）两边</h1>
+    <p class="selected-card">所选卡牌: <span id="chosenCard"></span></p>
+
+    <div class="deck-container">
+        <div class="side-deck-container">
+            <div class="side-deck">卡牌</div>
+            <div class="deck-count" id="leftCount">19张 (左)</div>
+        </div>
+
+        <div class="middle-deck">
+            <div class="button-row" id="buttonRow"></div>
+            <div class="line-row" id="lineRow"></div>
+        </div>
+
+        <div class="side-deck-container">
+            <div class="side-deck">卡牌</div>
+            <div class="deck-count" id="rightCount">19张 (右)</div>
+        </div>
+    </div>
+
+    <!-- 설명을 제일 아래로 이동 -->
+    <p class="description">
+  	需要将卡牌平均分成两部分。
+	请点击黄色按钮选择分割位置，卡牌将以该按钮为基准分为左右两边。
+    </p>
+
+    <script>
+        // 1단계에서 저장된 카드 데이터 불러오기
+        let selectedCard = localStorage.getItem("selectedCard");
+
+        // 선택한 카드가 존재하면 화면에 표시
+        if (selectedCard) {
+            document.getElementById("chosenCard").innerText = selectedCard;
+        } else {
+            document.getElementById("chosenCard").innerText = "카드 선택 데이터 없음";
+        }
+
+        let fixedLeftCards = 19; // 왼쪽 기본 카드 수 (최소)
+        let fixedRightCards = 19; // 오른쪽 기본 카드 수 (최소)
+        let middleCards = 11; // 중앙 덱에 있는 카드 개수
+
+function createMiddleDeck() {
+    let buttonRow = document.getElementById("buttonRow");
+    let lineRow = document.getElementById("lineRow");
+
+    let deck = JSON.parse(localStorage.getItem("deck")) || [];
+    let selectedCard = localStorage.getItem("selectedCard");
+
+    // 🔥 1단계에서 선택한 카드가 제거된 덱을 가져오므로 중복 제거 불필요!
+    let middleDeck = deck.slice(19, 30);  // 중앙 덱 11장
+
+    for (let i = 0; i < middleDeck.length; i++) {
+        let button = document.createElement("div");
+        button.classList.add("split-button");
+        button.dataset.index = i;
+        button.onclick = () => selectSplitPoint(i);
+        buttonRow.appendChild(button);
+
+        if (i < middleDeck.length - 1) {
+            let line = document.createElement("div");
+            line.classList.add("line");
+            lineRow.appendChild(line);
+        }
+    }
+
+    localStorage.setItem("middleDeck", JSON.stringify(middleDeck));
+}
+
+function moveToNextStep() {
+    // ✅ 사용자가 선택하면 1초 후 3단계로 이동
+    setTimeout(() => {
+        window.location.href = "card_fortune3.html";
+    }, 1000);
+}
+
+function selectSplitPoint(index) {
+    let buttons = document.querySelectorAll(".split-button");
+    buttons.forEach(btn => btn.classList.remove("highlight"));
+    buttons[index].classList.add("highlight");  
+
+    let deck = JSON.parse(localStorage.getItem("deck")) || [];
+    let middleDeck = JSON.parse(localStorage.getItem("middleDeck")) || [];
+
+    if (index < 0 || index >= middleDeck.length) {
+        console.error(`❌ [ERROR] 선택한 카드가 존재하지 않음! (index: ${index}, middleDeck.length: ${middleDeck.length})`);
+        return;
+    }
+
+    let selectedCard = middleDeck.splice(index, 1)[0];  
+
+    let leftNewCount = fixedLeftCards + index;
+    let rightNewCount = deck.length - leftNewCount;  // ✅ 오른쪽 덱 정상 계산
+
+    document.getElementById("leftCount").innerText = `${leftNewCount}장 (좌)`;
+    document.getElementById("rightCount").innerText = `${rightNewCount}장 (우)`;
+
+    let leftDeck = deck.slice(0, leftNewCount);
+    let rightDeck = deck.slice(leftNewCount);
+
+    console.log("✅ [DEBUG] 선택된 카드:", selectedCard);
+    console.log("✅ [DEBUG] leftDeck:", leftDeck);
+    console.log("✅ [DEBUG] middleDeck:", middleDeck);
+    console.log("✅ [DEBUG] rightDeck:", rightDeck);
+
+    localStorage.setItem("leftDeck", JSON.stringify(leftDeck));
+    localStorage.setItem("middleDeck", JSON.stringify(middleDeck));
+    localStorage.setItem("rightDeck", JSON.stringify(rightDeck));
+
+    moveToNextStep();
+}
+
+// ✅ 중복 선언된 `selectSplitPoint()` 제거 완료!
+
+// ✅ 페이지 로딩 시 삼각형 버튼 생성
+createMiddleDeck();
+
+    </script>
+</body>
+</html>
