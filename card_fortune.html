@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일생에 최소 한번은 꼭 봐야하는 주역(周易)</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .card-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            width: 90vw; 
+            height: auto;
+            margin: auto; 
+            position: relative; 
+        }
+        .card { 
+            width: 50px; 
+            height: 75px; 
+            border: 1px solid black; 
+            margin: 5px; 
+            text-align: center; 
+            line-height: 75px; 
+            background-color: gray; 
+            cursor: pointer; 
+            color: transparent; 
+            transition: transform 0.5s ease-in-out, background-color 0.3s;
+            position: relative;
+            font-size: 16px;
+        }
+        .card.back {
+            background-color: black;
+            color: transparent;
+        }
+        .selected { background-color: yellow; color: black; }
+        .selected-card-container {
+            margin-top: 20px;
+        }
+        .red { color: red; }
+        .black { color: black; }
+        .hidden { display: none; }
+        
+        /* 반응형 스타일 */
+        @media (max-width: 600px) {
+            .card-container {
+                width: 95vw;
+                height: auto;
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .card {
+                width: 12vw;
+                height: 18vw;
+                font-size: 2.5vw;
+                line-height: 18vw;
+            }
+            button {
+                font-size: 4vw;
+                padding: 10px;
+            }
+            h1 {
+                font-size: 5vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>일생에 최소 한번은 꼭 봐야하는 주역(周易)</h1>
+    <button id="startButton" onclick="startGame()">시작하기</button>
+    <p style="font-size: 16px; margin-top: 20px;">
+        유튜브: <a href="https://youtube.com/@kimkaphan3714" target="_blank">youtube.com/@kimkaphan3714</a><br>
+        카톡 ID: <a href="mailto:sosss09@hanmail.net">sosss09@hanmail.net</a>
+    </p>
+    <button id="shuffleButton" onclick="shuffleDeck()" class="hidden">카드 섞기 (<span id="shuffleCount">3</span>번 남음)</button>
+    <div class="card-container" id="deck"></div>
+    <p id="message"></p>
+    <div class="selected-card-container" id="selectedCardContainer"></div>
+    
+    <script>
+        let deck = [];
+        let selectedCard = null;
+        let shuffleRemaining = 3;
+        let cardElements = [];
+        let cardSelected = false;
+        
+        function startGame() {
+            document.getElementById("startButton").classList.add("hidden");
+            document.getElementById("shuffleButton").classList.remove("hidden");
+            document.getElementById("deck").classList.remove("hidden");
+            document.getElementById("message").innerText = "";
+    document.querySelector("h1").innerText = "카드를 3번섞고 한장을 골라주세요";
+    document.querySelector("p").innerHTML = "※ 3번 섞는이유는? 3이라는 숫자는 삼재(天, 地, 人) 변화의 완성, 점괘 형성과정에 중요한 의미를가짐";
+
+            generateDeck();
+            renderDeck();
+        }
+        
+function generateDeck() {
+    const suits = [
+        { symbol: '♠', color: 'black' },
+        { symbol: '♥', color: 'red' },
+        { symbol: '♦', color: 'red' },
+        { symbol: '♣', color: 'black' }
+    ];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'A'];  // ✅ K 제거!
+    deck = [];
+
+    for (let suit of suits) {
+        for (let value of values) {
+            deck.push({ text: value + suit.symbol, color: suit.color });
+        }
+    }
+    deck.push({ text: 'Joker1', color: 'black' });  // ✅ 조커 추가
+    deck.push({ text: 'Joker2', color: 'red' });
+
+    // ❌ `shuffleDeck();` 삭제! 사용자가 버튼을 눌러야만 섞임.
+}
+
+        function renderDeck() {
+            let deckDiv = document.getElementById("deck");
+            deckDiv.innerHTML = "";
+            cardElements = [];
+            deck.forEach((card, index) => {
+                let cardDiv = document.createElement("div");
+                cardDiv.classList.add("card", "back");
+                cardDiv.innerText = "?";
+                cardDiv.style.position = "relative";
+                cardDiv.onclick = () => selectCard(cardDiv, index);
+                deckDiv.appendChild(cardDiv);
+                cardElements.push(cardDiv);
+            });
+        }
+        
+function shuffleDeck() {
+    if (shuffleRemaining > 0) {
+        let shuffleButton = document.getElementById("shuffleButton");
+        shuffleButton.disabled = true;  // 섞기 버튼 비활성화
+
+        let deckContainer = document.getElementById("deck");
+        let centerX = deckContainer.offsetWidth / 2 - 25;
+        let centerY = Math.min(deckContainer.getBoundingClientRect().top + 30, window.innerHeight * 0.3);
+
+        cardElements.forEach((card) => {
+            card.style.transform = `translate(${centerX - card.offsetLeft}px, ${centerY - card.offsetTop}px) scale(0.2)`;
+        });
+
+        setTimeout(() => {
+            for (let i = 0; i < 3; i++) {
+                deck = deck.sort(() => Math.random() - 0.5);
+            }
+            console.log("카드가 3번 섞였습니다:", deck);
+
+            shuffleRemaining--;
+            document.getElementById("shuffleCount").innerText = shuffleRemaining;
+
+            setTimeout(() => {
+                cardElements.forEach((card) => {
+                    card.innerText = "?";
+                    card.style.color = "transparent";
+                    card.style.transform = "translate(0, 0) scale(1)";
+                });
+
+                if (shuffleRemaining === 0) {
+                    document.getElementById("shuffleButton").innerText = "카드 한 장 선택하세요";
+                }
+
+                shuffleButton.disabled = false;
+            }, 500);
+        }, 1500);
+    }
+}
+
+function selectCard(cardDiv, index) {
+    if (shuffleRemaining > 0) {
+        document.getElementById("message").innerText = "3번 다 섞고 카드를 골라주세요.";
+        return;
+    }
+    if (cardSelected) return;
+
+    cardSelected = true;
+    selectedCard = deck[index];
+
+    cardDiv.classList.remove("back");
+    cardDiv.innerText = selectedCard.text;
+    cardDiv.style.color = selectedCard.color;
+
+    // ✅ 선택한 카드를 덱에서 제거 (🔥 기존 코드에 추가해야 함)
+    deck.splice(index, 1);  
+
+    // ✅ 선택한 카드와 덱 저장 (덱 순서 유지!)
+    localStorage.setItem("selectedCard", selectedCard.text);
+    localStorage.setItem("deck", JSON.stringify(deck));  // 🔥 선택한 카드 제거된 덱 저장
+
+    setTimeout(() => {
+        window.location.href = "card_fortune2.html";
+    }, 1000);
+}
+
+</script>
+
