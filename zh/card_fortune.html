@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일생에 최소 한번은 꼭 봐야하는 주역(周易)</title>
+    <title>一生至少要看一次的周易</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
         .card-container { 
@@ -66,21 +66,22 @@
     </style>
 </head>
 <body>
-    <h1>일생에 최소 한번은 꼭 봐야하는 주역(周易)</h1>
-    <button id="startButton" onclick="startGame()">시작하기</button>
+    <h1>一生至少要看一次的周易</h1>
+    <button id="startButton" onclick="startGame()">点击开始</button>
     <p style="font-size: 16px; margin-top: 20px;">
-        유튜브: <a href="https://youtube.com/@kimkaphan3714" target="_blank">youtube.com/@kimkaphan3714</a><br>
-        카톡 ID: <a href="mailto:sosss09@hanmail.net">sosss09@hanmail.net</a> <br> <br>
-        우리는 로또 번호처럼 모든 조합의 확률이 같다고 믿지만,<br>
-              전세계 수천만 번의 추첨 속에서<br>
-              ‘1, 2, 3, 4, 5, 6’은 한 번도 나오지 않았습니다.<br> <br>
-             주역은 이처럼 수천년간 반복된 빅데이터 속에서<br>
-             ‘보이지 않는 흐름’을 찾아내는 고대의 확률 체계입니다.<br> <br>
-             시작하기 전,<br>
-             당신이 알고 싶은 것을<br>
-             최대한 객관적으로 떠올려 주세요.
+        youtube: <a href="https://youtube.com/@kimkaphan3714" target="_blank">youtube.com/@kimkaphan3714</a><br>
+        微信 ID: <a href="mailto:hanguopengyou001">hanguopengyou001</a> <br> <br>
+	我们通常认为，像彩票号码这样的组合，其中奖概率是均等的。<br>
+	但在全球数千万次的开奖中，<br>
+	“1、2、3、4、5、6” 从未出现过一次。<br><br>
+	《周易》正是通过这种长期累积的数据，<br>
+	洞察隐藏在背后的变化规律。<br>
+	这是一种古老却科学的概率系统。<br><br>
+	开始之前，<br>
+	请尽可能客观地思考，<br>
+	你真正想了解的是什么。
     </p>
-    <button id="shuffleButton" onclick="shuffleDeck()" class="hidden">카드 섞기 (<span id="shuffleCount">3</span>번 남음)</button>
+    <button id="shuffleButton" onclick="shuffleDeck()" class="hidden">洗牌 (<span id="shuffleCount">3</span>剩余次数)</button>
     <div class="card-container" id="deck"></div>
     <p id="message"></p>
     <div class="selected-card-container" id="selectedCardContainer"></div>
@@ -97,8 +98,8 @@
             document.getElementById("shuffleButton").classList.remove("hidden");
             document.getElementById("deck").classList.remove("hidden");
             document.getElementById("message").innerText = "";
-    document.querySelector("h1").innerText = "카드를 3번섞고 한장을 골라주세요";
-    document.querySelector("p").innerHTML = "※ 3번 섞는이유는? 3이라는 숫자는 삼재(天, 地, 人) 변화의 완성, 점괘 형성과정에 중요한 의미를가짐";
+    document.querySelector("h1").innerText = "请洗牌三次，然后选一张牌";
+    document.querySelector("p").innerHTML = "※ 为什么要洗牌三次？数字3象征着天地人三才之变化的完成，在形成卦象的过程中具有重要意义";
 
             generateDeck();
             renderDeck();
@@ -157,7 +158,7 @@ function shuffleDeck() {
             for (let i = 0; i < 3; i++) {
                 deck = deck.sort(() => Math.random() - 0.5);
             }
-            console.log("카드가 3번 섞였습니다:", deck);
+            console.log("卡牌已洗牌三次:", deck);
 
             shuffleRemaining--;
             document.getElementById("shuffleCount").innerText = shuffleRemaining;
@@ -170,7 +171,7 @@ function shuffleDeck() {
                 });
 
                 if (shuffleRemaining === 0) {
-                    document.getElementById("shuffleButton").innerText = "카드 한 장 선택하세요";
+                    document.getElementById("shuffleButton").innerText = "请选择一张牌";
                 }
 
                 shuffleButton.disabled = false;
@@ -181,7 +182,7 @@ function shuffleDeck() {
 
 function selectCard(cardDiv, index) {
     if (shuffleRemaining > 0) {
-        document.getElementById("message").innerText = "3번 다 섞고 카드를 골라주세요.";
+        document.getElementById("message").innerText = "请完成三次洗牌后再选一张牌.";
         return;
     }
     if (cardSelected) return;
