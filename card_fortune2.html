@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카드 선택 결과</title>
+    <title>您选择的卡牌结果</title>
     <style>
         /* 전체 레이아웃 정리 */
         body {
@@ -113,13 +113,13 @@
     </style>
 </head>
 <body>
-    <h1>카드를 좌(음) 우(양)으로 나눠주세요</h1>
-    <p class="selected-card">선택한 카드: <span id="chosenCard"></span></p>
+    <h1>请将卡牌分为左（阴）右（阳）两边</h1>
+    <p class="selected-card">所选卡牌: <span id="chosenCard"></span></p>
 
     <div class="deck-container">
         <div class="side-deck-container">
-            <div class="side-deck">카드</div>
-            <div class="deck-count" id="leftCount">19장 (좌)</div>
+            <div class="side-deck">卡牌</div>
+            <div class="deck-count" id="leftCount">19张 (左)</div>
         </div>
 
         <div class="middle-deck">
@@ -128,15 +128,17 @@
         </div>
 
         <div class="side-deck-container">
-            <div class="side-deck">카드</div>
-            <div class="deck-count" id="rightCount">19장 (우)</div>
+            <div class="side-deck">卡牌</div>
+            <div class="deck-count" id="rightCount">19张 (右)</div>
         </div>
     </div>
 
     <!-- 설명을 제일 아래로 이동 -->
     <p class="description">
-        카드를 반으로 나눠야 합니다. 나눌 위치를 노란 버튼을 눌러 
-        선택하시면 버튼 기준으로 카드가 좌우로 분배됩니다.
+  	需要将卡牌平均分成两部分。
+	请点击黄色按钮选择分割位置，卡牌将以该按钮为基准分为左右两边。<br> <br>
+            左手与右手， 象征着阴与阳，两种流动的分界。<br>
+            通过这次分拣，你的问题将确定它前进的方向。
     </p>
 
     <script>
