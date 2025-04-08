@@ -156,32 +156,34 @@
         let fixedRightCards = 19; // 오른쪽 기본 카드 수 (최소)
         let middleCards = 11; // 중앙 덱에 있는 카드 개수
 
+
 function createMiddleDeck() {
     let buttonRow = document.getElementById("buttonRow");
     let lineRow = document.getElementById("lineRow");
 
     let deck = JSON.parse(localStorage.getItem("deck")) || [];
-    let selectedCard = localStorage.getItem("selectedCard");
 
-    // 🔥 1단계에서 선택한 카드가 제거된 덱을 가져오므로 중복 제거 불필요!
-    let middleDeck = deck.slice(19, 30);  // 중앙 덱 11장
+    let middleDeck = deck.slice(19, 30);  // 중앙 덱 11장 (index 19~29)
 
-    for (let i = 0; i < middleDeck.length; i++) {
+    // 🔺 기준점(삼각형) 12개 생성
+    for (let i = 0; i <= middleDeck.length; i++) {
         let button = document.createElement("div");
         button.classList.add("split-button");
         button.dataset.index = i;
         button.onclick = () => selectSplitPoint(i);
         buttonRow.appendChild(button);
+    }
 
-        if (i < middleDeck.length - 1) {
-            let line = document.createElement("div");
-            line.classList.add("line");
-            lineRow.appendChild(line);
-        }
+    // │선은 11개
+    for (let i = 0; i < middleDeck.length; i++) {
+        let line = document.createElement("div");
+        line.classList.add("line");
+        lineRow.appendChild(line);
     }
 
     localStorage.setItem("middleDeck", JSON.stringify(middleDeck));
 }
+
 
 function moveToNextStep() {
     // ✅ 사용자가 선택하면 1초 후 3단계로 이동
@@ -198,7 +200,7 @@ function selectSplitPoint(index) {
     let deck = JSON.parse(localStorage.getItem("deck")) || [];
     let middleDeck = JSON.parse(localStorage.getItem("middleDeck")) || [];
 
-    if (index < 0 || index >= middleDeck.length) {
+    if (index < 0 || index > middleDeck.length) {
         console.error(`❌ [ERROR] 선택한 카드가 존재하지 않음! (index: ${index}, middleDeck.length: ${middleDeck.length})`);
         return;
     }

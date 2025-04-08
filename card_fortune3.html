@@ -134,7 +134,19 @@
 <button id="copyButton" onclick="copyResult()" style="width: 200px; height: 50px; font-size: 18px; background-color: gray; color: white; display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 80%;">결과 복사</button>
 <p id="copyMessage" style="font-size: 18px; font-weight: bold; margin-top: 10px;"></p>
 
-    <script>
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+<script>
+
 function disableClick() {
     document.getElementById("leftDeck").style.pointerEvents = "none";
     document.getElementById("rightDeck").style.pointerEvents = "none";
@@ -147,7 +159,9 @@ function enableClick() {
 
         let leftCards = parseInt(localStorage.getItem("leftCards")) || 0;
         let rightCards = parseInt(localStorage.getItem("rightCards")) || 0;
-        let selectedFirstCard = localStorage.getItem("selectedCard");
+        let leftDeck = [];
+let rightDeck = [];
+let selectedFirstCard = localStorage.getItem("selectedCard");
         let finalCards = [];
         let step = 0;
         let isLeftTurn = true;
@@ -224,23 +238,27 @@ function discardCard(hand) {
 
 // ✅ 3단계에서 올바른 덱 데이터 불러오기
 function initializeDecks() {
-    let leftDeck = JSON.parse(localStorage.getItem("leftDeck")) || [];
-    let rightDeck = JSON.parse(localStorage.getItem("rightDeck")) || [];
+    leftDeck = JSON.parse(localStorage.getItem("leftDeck")) || [];
+    rightDeck = JSON.parse(localStorage.getItem("rightDeck")) || [];
 
-    if (leftDeck.length === 0 || rightDeck.length === 0) {
-        console.error("❌ [ERROR] 덱 데이터 없음! 2단계에서 올바르게 전달되지 않음.");
-        alert("⚠ 2단계에서 카드가 올바르게 저장되지 않았습니다! 다시 시도해 주세요.");
-        return;
-    }
-
-    document.getElementById("leftCount").innerText = `카드: ${leftDeck.length}장`;
-    document.getElementById("rightCount").innerText = `카드: ${rightDeck.length}장`;
+    // 💡 철학 반영: 양손 모두 뒤에서부터 열기 위해 reverse
+    leftDeck.reverse();  // 현재 상황, 기준점 따라 변화
+    rightDeck.reverse(); // 타고난 성질, 고정된 흐름
 
     localStorage.setItem("leftDeck", JSON.stringify(leftDeck));
     localStorage.setItem("rightDeck", JSON.stringify(rightDeck));
 
-    console.log("✅ [DEBUG] 3단계 덱 로드 완료! 왼쪽 덱:", leftDeck, "오른쪽 덱:", rightDeck);
+    document.getElementById("leftCount").innerText = `카드: ${leftDeck.length}장`;
+    document.getElementById("rightCount").innerText = `카드: ${rightDeck.length}장`;
+
+    const selectedCard = localStorage.getItem("selectedCard");
+    if (selectedCard) {
+        document.getElementById("firstCardDisplay").innerText = `선택 카드: ${selectedCard}`;
+    }
+
+    console.log("✅ [DEBUG] 덱 초기화 완료 (양손 reverse 적용)");
 }
+
 
 // ✅ 페이지 로딩 시 덱 데이터 초기화
 initializeDecks();
@@ -329,6 +347,5 @@ function showCopyButton() {
     document.getElementById("copyButton").style.display = "block"; // 버튼 보이게 설정
 }
 
-    </script>
-</body>
-</html>
+    
+</script>
