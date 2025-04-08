@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>您选择的卡牌结果</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>卡牌 선택 결과</title>
+<style>
         /* 전체 레이아웃 정리 */
         body {
             text-align: center;
@@ -17,7 +18,7 @@
             font-weight: bold;
         }
 
-        /* 카드 배치 */
+        /* 卡牌 배치 */
         .deck-container {
             display: flex;
             justify-content: center;
@@ -113,75 +114,72 @@
     </style>
 </head>
 <body>
-    <h1>请将卡牌分为左（阴）右（阳）两边</h1>
-    <p class="selected-card">所选卡牌: <span id="chosenCard"></span></p>
-
-    <div class="deck-container">
-        <div class="side-deck-container">
-            <div class="side-deck">卡牌</div>
-            <div class="deck-count" id="leftCount">19张 (左)</div>
-        </div>
-
-        <div class="middle-deck">
-            <div class="button-row" id="buttonRow"></div>
-            <div class="line-row" id="lineRow"></div>
-        </div>
-
-        <div class="side-deck-container">
-            <div class="side-deck">卡牌</div>
-            <div class="deck-count" id="rightCount">19张 (右)</div>
-        </div>
-    </div>
-
-    <!-- 설명을 제일 아래로 이동 -->
-    <p class="description">
-  	需要将卡牌平均分成两部分。
-	请点击黄色按钮选择分割位置，卡牌将以该按钮为基准分为左右两边。<br> <br>
-            左手与右手， 象征着阴与阳，两种流动的分界。<br>
-            通过这次分拣，你的问题将确定它前进的方向。
+<h1>请将卡牌分为左（阴）右（阳）两边</h1>
+<p class="selected-card">所选卡牌: <span id="chosenCard"></span></p>
+<div class="deck-container">
+<div class="side-deck-container">
+<div class="side-deck">卡牌</div>
+<div class="deck-count" id="leftCount">19张 (左)</div>
+</div>
+<div class="middle-deck">
+<div class="button-row" id="buttonRow"></div>
+<div class="line-row" id="lineRow"></div>
+</div>
+<div class="side-deck-container">
+<div class="side-deck">卡牌</div>
+<div class="deck-count" id="rightCount">19张 (右)</div>
+</div>
+</div>
+<!-- 설명을 제일 아래로 이동 -->
+<p class="description">
+        卡牌를 반으로 나눠야 합니다. 나눌 위치를 노란 버튼을 눌러 
+        선택하시면 버튼 기준으로 卡牌가 좌우로 분배됩니다.<br/> <br/>
+        左手与右手， 象征着阴与阳，两种流动的分界。 <br/>
+        通过这次分拣，你的问题将确定它前进的方向。
     </p>
-
-    <script>
-        // 1단계에서 저장된 카드 데이터 불러오기
+<script>
+        // 1단계에서 저장된 卡牌 데이터 불러오기
         let selectedCard = localStorage.getItem("selectedCard");
 
-        // 선택한 카드가 존재하면 화면에 표시
+        // 선택한 卡牌가 존재하면 화면에 표시
         if (selectedCard) {
             document.getElementById("chosenCard").innerText = selectedCard;
         } else {
-            document.getElementById("chosenCard").innerText = "카드 선택 데이터 없음";
+            document.getElementById("chosenCard").innerText = "卡牌 선택 데이터 없음";
         }
 
-        let fixedLeftCards = 19; // 왼쪽 기본 카드 수 (최소)
-        let fixedRightCards = 19; // 오른쪽 기본 카드 수 (최소)
-        let middleCards = 11; // 중앙 덱에 있는 카드 개수
+        let fixedLeftCards = 19; // 왼쪽 기본 卡牌 수 (최소)
+        let fixedRightCards = 19; // 오른쪽 기본 卡牌 수 (최소)
+        let middleCards = 11; // 중앙 덱에 있는 卡牌 개수
+
 
 function createMiddleDeck() {
     let buttonRow = document.getElementById("buttonRow");
     let lineRow = document.getElementById("lineRow");
 
     let deck = JSON.parse(localStorage.getItem("deck")) || [];
-    let selectedCard = localStorage.getItem("selectedCard");
 
-    // 🔥 1단계에서 선택한 카드가 제거된 덱을 가져오므로 중복 제거 불필요!
-    let middleDeck = deck.slice(19, 30);  // 중앙 덱 11장
+    let middleDeck = deck.slice(19, 30);  // 중앙 덱 11장 (index 19~29)
 
-    for (let i = 0; i < middleDeck.length; i++) {
+    // 🔺 기준점(삼각형) 12개 생성
+    for (let i = 0; i <= middleDeck.length; i++) {
         let button = document.createElement("div");
         button.classList.add("split-button");
         button.dataset.index = i;
         button.onclick = () => selectSplitPoint(i);
         buttonRow.appendChild(button);
+    }
 
-        if (i < middleDeck.length - 1) {
-            let line = document.createElement("div");
-            line.classList.add("line");
-            lineRow.appendChild(line);
-        }
+    // │선은 11개
+    for (let i = 0; i < middleDeck.length; i++) {
+        let line = document.createElement("div");
+        line.classList.add("line");
+        lineRow.appendChild(line);
     }
 
     localStorage.setItem("middleDeck", JSON.stringify(middleDeck));
 }
+
 
 function moveToNextStep() {
     // ✅ 사용자가 선택하면 1초 후 3단계로 이동
@@ -198,8 +196,8 @@ function selectSplitPoint(index) {
     let deck = JSON.parse(localStorage.getItem("deck")) || [];
     let middleDeck = JSON.parse(localStorage.getItem("middleDeck")) || [];
 
-    if (index < 0 || index >= middleDeck.length) {
-        console.error(`❌ [ERROR] 선택한 카드가 존재하지 않음! (index: ${index}, middleDeck.length: ${middleDeck.length})`);
+    if (index < 0 || index > middleDeck.length) {
+        console.error(`❌ [ERROR] 선택한 卡牌가 존재하지 않음! (index: ${index}, middleDeck.length: ${middleDeck.length})`);
         return;
     }
 
@@ -208,13 +206,13 @@ function selectSplitPoint(index) {
     let leftNewCount = fixedLeftCards + index;
     let rightNewCount = deck.length - leftNewCount;  // ✅ 오른쪽 덱 정상 계산
 
-    document.getElementById("leftCount").innerText = `${leftNewCount}장 (좌)`;
-    document.getElementById("rightCount").innerText = `${rightNewCount}장 (우)`;
+    document.getElementById("leftCount").innerText = `${leftNewCount}张 (左)`;
+    document.getElementById("rightCount").innerText = `${rightNewCount}张 (右)`;
 
     let leftDeck = deck.slice(0, leftNewCount);
     let rightDeck = deck.slice(leftNewCount);
 
-    console.log("✅ [DEBUG] 선택된 카드:", selectedCard);
+    console.log("✅ [DEBUG] 선택된 卡牌:", selectedCard);
     console.log("✅ [DEBUG] leftDeck:", leftDeck);
     console.log("✅ [DEBUG] middleDeck:", middleDeck);
     console.log("✅ [DEBUG] rightDeck:", rightDeck);

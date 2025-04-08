@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一生至少要看一次的周易</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>一生至少要看一次的周易</title>
+<style>
         body { text-align: center; font-family: Arial, sans-serif; }
         .card-container { 
             display: flex; 
@@ -66,27 +67,25 @@
     </style>
 </head>
 <body>
-    <h1>一生至少要看一次的周易</h1>
-    <button id="startButton" onclick="startGame()">点击开始</button>
-    <p style="font-size: 16px; margin-top: 20px;">
-        youtube: <a href="https://youtube.com/@kimkaphan3714" target="_blank">youtube.com/@kimkaphan3714</a><br>
-        微信 ID: <a href="mailto:hanguopengyou001">hanguopengyou001</a> <br> <br>
-	我们通常认为，像彩票号码这样的组合，其中奖概率是均等的。<br>
-	但在全球数千万次的开奖中，<br>
-	“1、2、3、4、5、6” 从未出现过一次。<br><br>
-	《周易》正是通过这种长期累积的数据，<br>
-	洞察隐藏在背后的变化规律。<br>
-	这是一种古老却科学的概率系统。<br><br>
-	开始之前，<br>
-	请尽可能客观地思考，<br>
-	你真正想了解的是什么。
+<h1>一生至少要看一次的周易</h1>
+<button id="startButton" onclick="startGame()">点击开始</button>
+<p style="font-size: 16px; margin-top: 20px;">
+        youtube: <a href="https://youtube.com/@kimkaphan3714" target="_blank">youtube.com/@kimkaphan3714</a><br/>
+        微信 ID: <a href="mailto:sosss09@hanmail.net">sosss09@hanmail.net</a> <br/> <br/>
+        我们通常认为，像彩票号码这样的组合，其中奖概率是均等的。<br/>
+              但在全球数千万次的开奖中，<br/>
+              “1、2、3、4、5、6” 从未出现过一次。<br/> <br/>
+             《周易》正是通过这种长期累积的数据，<br/>
+             洞察隐藏在背后的变化规律。这是一种古老却科学的概率系统。<br/> <br/>
+             点击开始 전,<br/>
+             请尽可能客观地思考，<br/>
+             你真正想了解的是什么。
     </p>
-    <button id="shuffleButton" onclick="shuffleDeck()" class="hidden">洗牌 (<span id="shuffleCount">3</span>剩余次数)</button>
-    <div class="card-container" id="deck"></div>
-    <p id="message"></p>
-    <div class="selected-card-container" id="selectedCardContainer"></div>
-    
-    <script>
+<button class="hidden" id="shuffleButton" onclick="shuffleDeck()">洗牌 (<span id="shuffleCount">3</span>剩余次数)</button>
+<div class="card-container" id="deck"></div>
+<p id="message"></p>
+<div class="selected-card-container" id="selectedCardContainer"></div>
+<script>
         let deck = [];
         let selectedCard = null;
         let shuffleRemaining = 3;
@@ -158,7 +157,7 @@ function shuffleDeck() {
             for (let i = 0; i < 3; i++) {
                 deck = deck.sort(() => Math.random() - 0.5);
             }
-            console.log("卡牌已洗牌三次:", deck);
+            console.log("카드가 3번 섞였습니다:", deck);
 
             shuffleRemaining--;
             document.getElementById("shuffleCount").innerText = shuffleRemaining;
@@ -207,4 +206,4 @@ function selectCard(cardDiv, index) {
 }
 
 </script>
-
+</body></html>
